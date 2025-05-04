@@ -142,6 +142,7 @@ def main() -> None:
     if args.output is None:
         print("".join(content))
     else:
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
         with open(args.output, "w") as f:
             f.write("".join(content))
 
