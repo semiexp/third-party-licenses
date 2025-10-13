@@ -64,9 +64,14 @@ def has_js_project(directory: str) -> bool:
 
 
 def get_js_dependencies(directory: str) -> list[Dependency]:
-    dep_path = subprocess.check_output(
-        ["npm", "ls", "--parseable", "--all", "--omit", "dev"], cwd=directory
-    ).decode("utf-8").strip().split("\n")
+    if os.path.exists(os.path.join(directory, "pnpm-lock.yaml")):
+        dep_path = subprocess.check_output(
+            ["pnpm", "ls", "--parseable", "--recursive", "--prod"], cwd=directory
+        ).decode("utf-8").strip().split("\n")
+    else:
+        dep_path = subprocess.check_output(
+            ["npm", "ls", "--parseable", "--all", "--omit", "dev"], cwd=directory
+        ).decode("utf-8").strip().split("\n")
 
     ret = []
     for dep in dep_path:
