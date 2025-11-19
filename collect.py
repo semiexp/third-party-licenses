@@ -63,10 +63,20 @@ def has_js_project(directory: str) -> bool:
     return os.path.exists(os.path.join(directory, "package.json"))
 
 
+def is_pnpm_managed(directory: str) -> bool:
+    while True:
+        if os.path.exists(os.path.join(directory, "pnpm-lock.yaml")):
+            return True
+        parent_directory = os.path.dirname(directory)
+        if parent_directory == directory:
+            break
+        directory = parent_directory
+
+
 def get_js_dependencies(directory: str) -> list[Dependency]:
-    if os.path.exists(os.path.join(directory, "pnpm-lock.yaml")):
+    if is_pnpm_managed(directory):
         dep_path = subprocess.check_output(
-            ["pnpm", "ls", "--parseable", "--recursive", "--prod"], cwd=directory
+            ["pnpm", "ls", "--parseable", "--depth", "Infinity", "--prod"], cwd=directory
         ).decode("utf-8").strip().split("\n")
     else:
         dep_path = subprocess.check_output(
